@@ -21,7 +21,7 @@ emotion_thresholds = {
     '疲れた': 0.3
 }
 
-font_path = r"C:\Users\s-rin\AppData\Local\Microsoft\Windows\Fonts\KTEGAKI.ttf"
+font_path = r"/home/rinta/ダウンロード/ki_kokugo/font_1_kokugl_1.15_rls.ttf"
 font = ImageFont.truetype(font_path, 32)
 
 cap = cv2.VideoCapture(0)
@@ -56,12 +56,13 @@ while cap.isOpened():
                 filtered_emotions = {emotion: score for emotion, score in mapped_emotions.items() if score > 0.6}
                 if filtered_emotions:
                     highest_emotion = max(filtered_emotions, key=filtered_emotions.get)
+                    base_ip = "http://192.168.200.77"
                     emotion_links = {
-                        '怒り': "http://192.168.0.231/0",
-                        '楽しい': "http://192.168.0.231/4",
-                        '悲しい': "http://192.168.0.231/2",
-                        '疲れた': "http://192.168.0.231/1",
-                        '普通': "http://192.168.0.231/3"
+                        '怒り': f"{base_ip}/0",
+                        '楽しい': f"{base_ip}/4",
+                        '悲しい': f"{base_ip}/2",
+                        '疲れた': f"{base_ip}/1",
+                        '普通': f"{base_ip}/3"
                     }
                     if highest_emotion in emotion_links:
                         response = requests.get(emotion_links[highest_emotion], timeout=5)
