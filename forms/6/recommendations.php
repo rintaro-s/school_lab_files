@@ -5,7 +5,7 @@ require_once 'functions.php';
 function getRecommendationPosts($limit = 50) {
     try {
         $pdo = getDBConnection();
-        $sql = "SELECT name, comment, recommendation, created_at 
+        $sql = "SELECT name, comment, recommendation, created_at, image_filename 
                 FROM posts 
                 WHERE recommendation IS NOT NULL AND recommendation != ''
                 ORDER BY created_at DESC 
@@ -80,7 +80,30 @@ $recommendations = getRecommendationPosts();
             z-index: 10;
         }
 
+        .header .language-button{
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            text-decoration: none;
+            padding: 15px 25px;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-block;
+            min-width: 120px;
+            text-align: center;
+            cursor: pointer;
+            z-index: 10;   
+        }
+
         .header .nav-link:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+         .header .language-button:hover {
             transform: translateY(-3px);
             box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
         }
@@ -279,6 +302,15 @@ $recommendations = getRecommendationPosts();
             -webkit-text-fill-color: transparent;
         }
 
+        .handwriting-image {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            border: 2px solid #e9ecef;
+            margin-bottom: 15px;
+            display: block;
+        }
+
         @keyframes sparkle {
             0%, 100% { transform: translateY(-50%) scale(1); opacity: 1; }
             50% { transform: translateY(-50%) scale(1.2); opacity: 0.8; }
@@ -356,6 +388,7 @@ $recommendations = getRecommendationPosts();
     <div class="container">
         <div class="header">
             <a href="index.php" class="nav-link">← 掲示板に戻る</a>
+            <a href="https://lorinta-xsrv-jp.translate.goog/wp-content/uploads/PBL/forms/recommendations.php?_x_tr_sl=ja&_x_tr_tl=en" class="language-button">🌍Language</a>
             <h1>みんなのおすすめ</h1>
             <p>コミュニティが選んだ素敵な情報をお届け</p>
         </div>
@@ -373,27 +406,27 @@ $recommendations = getRecommendationPosts();
             </div>
         <?php else: ?>
             <div class="recommendations-grid" id="recommendationsGrid">
-                <?php foreach ($recommendations as $rec): ?>
+                <?php foreach ($recommendations as $post): ?>
                     <div class="recommendation-card">
-                        <div class="recommendation-title">
-                            <?php echo htmlspecialchars($rec['recommendation']); ?>
+                        <div class="post-header">
+                            <div class="post-name"><?php echo htmlspecialchars($post['name']); ?></div>
+                            <div class="post-date"><?php echo date('Y/m/d H:i', strtotime($post['created_at'])); ?></div>
                         </div>
                         
-                        <?php if (!empty($rec['comment'])): ?>
-                            <div class="recommendation-comment">
-                                "<?php echo htmlspecialchars(mb_substr($rec['comment'], 0, 150, 'UTF-8')); 
-                                if (mb_strlen($rec['comment'], 'UTF-8') > 150) echo '...'; ?>"
-                            </div>
+                        <?php if (!empty($post['image_filename'])): ?>
+                            <?php 
+                            $image_path = __DIR__ . '/images/' . $post['image_filename'];
+                            if (file_exists($image_path)): 
+                            ?>
+                                <img src="images/<?php echo htmlspecialchars($post['image_filename']); ?>" alt="手書きコメント" class="handwriting-image">
+                            <?php else: ?>
+                                <div class="post-comment" style="color: #888; font-style: italic;">画像が見つかりません</div>
+                            <?php endif; ?>
+                        <?php else: ?>
+                            <div class="post-comment"><?php echo nl2br(htmlspecialchars($post['comment'])); ?></div>
                         <?php endif; ?>
                         
-                        <div class="recommendation-meta">
-                            <span class="recommendation-author">
-                                by <?php echo htmlspecialchars($rec['name']); ?>
-                            </span>
-                            <span class="recommendation-date">
-                                <?php echo date('m/d H:i', strtotime($rec['created_at'])); ?>
-                            </span>
-                        </div>
+                        <div class="post-recommendation"><?php echo htmlspecialchars($post['recommendation']); ?></div>
                     </div>
                 <?php endforeach; ?>
             </div>

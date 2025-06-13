@@ -5,9 +5,11 @@ require_once 'functions.php';
 function getRecommendationPosts($limit = 50) {
     try {
         $pdo = getDBConnection();
-        $sql = "SELECT name, comment, recommendation, created_at 
+        // 手書き投稿も含めて、recommendationがある投稿またはimage_filenameがある投稿を取得
+        $sql = "SELECT name, comment, recommendation, created_at, image_filename 
                 FROM posts 
-                WHERE recommendation IS NOT NULL AND recommendation != ''
+                WHERE (recommendation IS NOT NULL AND recommendation != '') 
+                   OR (image_filename IS NOT NULL AND image_filename != '')
                 ORDER BY created_at DESC 
                 LIMIT ?";
         $stmt = $pdo->prepare($sql);
@@ -279,6 +281,15 @@ $recommendations = getRecommendationPosts();
             -webkit-text-fill-color: transparent;
         }
 
+        .handwriting-image {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            border: 2px solid #e9ecef;
+            margin-bottom: 15px;
+            display: block;
+        }
+
         @keyframes sparkle {
             0%, 100% { transform: translateY(-50%) scale(1); opacity: 1; }
             50% { transform: translateY(-50%) scale(1.2); opacity: 0.8; }
@@ -357,47 +368,69 @@ $recommendations = getRecommendationPosts();
         <div class="header">
             <a href="index.php" class="nav-link">← 掲示板に戻る</a>
             <h1>みんなのおすすめ</h1>
-            <p>コミュニティが選んだ素敵な情報をお届け</p>
+            <p>コミュニティが選んだ素敵な情報と手書きメッセージをお届け</p>
         </div>
 
         <div class="stats-bar">
-            <h3>おすすめ総数</h3>
+            <h3>おすすめ・手書き投稿総数</h3>
             <div class="stats-count"><?php echo count($recommendations); ?></div>
         </div>
 
         <?php if (empty($recommendations)): ?>
             <div class="empty-recommendations">
-                <h2>🌟 まだおすすめがありません</h2>
-                <p>みんながおすすめを投稿してくれるのを待っています！<br>
-                掲示板でおすすめを共有してみませんか？</p>
+                <h2>🌟 まだおすすめや手書きメッセージがありません</h2>
+                <p>みんながおすすめや手書きメッセージを投稿してくれるのを待っています！<br>
+                掲示板でおすすめや手書きメッセージを共有してみませんか？</p>
             </div>
         <?php else: ?>
             <div class="recommendations-grid" id="recommendationsGrid">
-                <?php foreach ($recommendations as $rec): ?>
+                <?php foreach ($recommendations as $post): ?>
                     <div class="recommendation-card">
-                        <div class="recommendation-title">
-                            <?php echo htmlspecialchars($rec['recommendation']); ?>
-                        </div>
-                        
-                        <?php if (!empty($rec['comment'])): ?>
-                            <div class="recommendation-comment">
-                                "<?php echo htmlspecialchars(mb_substr($rec['comment'], 0, 150, 'UTF-8')); 
-                                if (mb_strlen($rec['comment'], 'UTF-8') > 150) echo '...'; ?>"
-                            </div>
-                        <?php endif; ?>
-                        
                         <div class="recommendation-meta">
-                            <span class="recommendation-author">
-                                by <?php echo htmlspecialchars($rec['name']); ?>
-                            </span>
-                            <span class="recommendation-date">
-                                <?php echo date('m/d H:i', strtotime($rec['created_at'])); ?>
-                            </span>
+                            <div class="recommendation-author"><?php echo htmlspecialchars($post['name']); ?></div>
+                            <div class="recommendation-date"><?php echo date('Y/m/d H:i', strtotime($post['created_at'])); ?></div>
                         </div>
+                        
+                        <?php if (!empty($post['image_filename'])): ?>
+                            <?php 
+                            $image_path = __DIR__ . '/images/' . $post['image_filename'];
+                            $web_image_path = 'images/' . $post['image_filename'];
+                            ?>
+                            <div class="image-container">
+                                <?php if (file_exists($image_path)): ?>
+                                    <div class="recommendation-title">
+                                        🎨 手書きメッセージ
+                                    </div>
+                                    <img src="<?php echo htmlspecialchars($web_image_path); ?>" 
+                                         alt="手書きコメント" 
+                                         class="handwriting-image"
+                                         onload="console.log('画像読み込み成功: <?php echo htmlspecialchars($post['image_filename']); ?>');"
+                                         onerror="console.log('画像読み込み失敗: <?php echo htmlspecialchars($post['image_filename']); ?>'); this.style.display='none'; this.nextElementSibling.style.display='block';">
+                                    <div class="image-error" style="display: none; color: #e74c3c; font-style: italic; padding: 10px; background: #f8d7da; border-radius: 8px;">
+                                        ❌ 画像の読み込みに失敗しました<br>
+                                        <small>ファイル: <?php echo htmlspecialchars($post['image_filename']); ?></small>
+                                    </div>
+                                <?php else: ?>
+                                    <div class="image-error" style="color: #e74c3c; font-style: italic; padding: 10px; background: #f8d7da; border-radius: 8px;">
+                                        ❌ 画像ファイルが見つかりません<br>
+                                        <small>ファイル: <?php echo htmlspecialchars($post['image_filename']); ?></small><br>
+                                        <small>パス: <?php echo htmlspecialchars($image_path); ?></small>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+                        <?php else: ?>
+                            <?php if (!empty($post['recommendation'])): ?>
+                                <div class="recommendation-title"><?php echo htmlspecialchars($post['recommendation']); ?></div>
+                            <?php endif; ?>
+                            <?php if (!empty($post['comment'])): ?>
+                                <div class="recommendation-comment"><?php echo nl2br(htmlspecialchars($post['comment'])); ?></div>
+                            <?php endif; ?>
+                        <?php endif; ?>
                     </div>
                 <?php endforeach; ?>
             </div>
         <?php endif; ?>
+
     </div>
 
     <script>

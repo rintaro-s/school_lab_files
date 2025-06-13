@@ -5,9 +5,11 @@ require_once 'functions.php';
 function getRecommendationPosts($limit = 50) {
     try {
         $pdo = getDBConnection();
-        $sql = "SELECT name, comment, recommendation, created_at 
+        // 手書き投稿も含めて、recommendationがある投稿またはimage_filenameがある投稿を取得
+        $sql = "SELECT name, comment, recommendation, created_at, image_filename 
                 FROM posts 
-                WHERE recommendation IS NOT NULL AND recommendation != ''
+                WHERE (recommendation IS NOT NULL AND recommendation != '') 
+                   OR (image_filename IS NOT NULL AND image_filename != '')
                 ORDER BY created_at DESC 
                 LIMIT ?";
         $stmt = $pdo->prepare($sql);
@@ -38,86 +40,152 @@ $recommendations = getRecommendationPosts();
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            font-family: 'Comic Sans MS', 'Verdana', sans-serif;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #feca57);
+            background-size: 400% 400%;
+            animation: rainbowMove 8s ease infinite;
             min-height: 100vh;
-            color: #333;
+            color: #2c3e50;
             overflow-x: hidden;
+        }
+
+        @keyframes rainbowMove {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 25px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 25px;
+            backdrop-filter: blur(15px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+            position: relative;
+            border: 3px solid transparent;
+            background-clip: padding-box;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 25px;
+            padding: 3px;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #feca57);
+            background-size: 400% 400%;
+            animation: borderRainbow 3s ease infinite;
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: exclude;
+            z-index: -1;
+        }
+
+        .header .nav-link {
+            position: absolute;
+            top: 15px;
+            left: 20px;
+            background: linear-gradient(45deg, #4ecdc4, #45b7d1);
+            color: white;
+            text-decoration: none;
+            padding: 12px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: inline-block;
+            min-width: 100px;
+            text-align: center;
+            cursor: pointer;
+            z-index: 10;
+            box-shadow: 0 4px 15px rgba(78, 205, 196, 0.4);
+        }
+
+        .header .nav-link:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 6px 25px rgba(78, 205, 196, 0.6);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+            position: relative;
+            animation: textRainbow 2s ease-in-out infinite;
+            font-weight: bold;
+        }
+
+        .header h1::before {
+            content: "🏆";
+            position: absolute;
+            left: -60px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 2rem;
+            animation: trophySpin 3s infinite;
+        }
+
+        .header h1::after {
+            content: "🎨";
+            position: absolute;
+            right: -60px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 2rem;
+            animation: artSpin 3s infinite 1s;
+        }
+
+        @keyframes trophySpin {
+            0%, 100% { transform: translateY(-50%) rotate(0deg); }
+            50% { transform: translateY(-50%) rotate(180deg); }
+        }
+
+        @keyframes artSpin {
+            0%, 100% { transform: translateY(-50%) scale(1); }
+            50% { transform: translateY(-50%) scale(1.2); }
+        }
+
+        .header p {
+            color: #2c3e50;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .stats-bar {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 12px 20px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .stats-bar h3 {
+            color: #2c3e50;
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .stats-count {
+            font-size: 1.8rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
         .container {
             max-width: 1400px;
             margin: 0 auto;
             padding: 20px;
-        }
-
-        .header {
-            text-align: center;
-            margin-bottom: 40px;
-            padding: 30px;
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 25px;
-            backdrop-filter: blur(15px);
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
-            position: relative;
-        }
-
-        .header .nav-link {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            background: linear-gradient(45deg, #667eea, #764ba2);
-            color: white;
-            text-decoration: none;
-            padding: 15px 25px;
-            border-radius: 25px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            display: inline-block;
-            min-width: 120px;
-            text-align: center;
-            cursor: pointer;
-            z-index: 10;
-        }
-
-        .header .nav-link:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
-        }
-
-        .header h1 {
-            font-size: 3rem;
-            background: linear-gradient(45deg, #667eea, #764ba2, #f093fb);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 15px;
-            position: relative;
-        }
-
-        .header h1::before {
-            content: "🌟";
-            position: absolute;
-            left: -60px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 2rem;
-            animation: sparkle 2s infinite;
-        }
-
-        .header h1::after {
-            content: "🌟";
-            position: absolute;
-            right: -60px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 2rem;
-            animation: sparkle 2s infinite 1s;
-        }
-
-        .header p {
-            color: #555;
-            font-size: 1.2rem;
-            font-weight: 500;
         }
 
         .recommendations-grid {
@@ -257,26 +325,36 @@ $recommendations = getRecommendationPosts();
 
         .stats-bar {
             background: rgba(255, 255, 255, 0.9);
-            padding: 15px 25px;
+            padding: 12px 20px;
             border-radius: 15px;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
             text-align: center;
             backdrop-filter: blur(10px);
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
         }
 
         .stats-bar h3 {
-            color: #667eea;
-            font-size: 1.2rem;
+            color: #2c3e50;
+            font-size: 1.1rem;
             margin-bottom: 5px;
+            font-weight: bold;
         }
 
         .stats-count {
-            font-size: 2rem;
+            font-size: 1.8rem;
             font-weight: bold;
-            background: linear-gradient(45deg, #667eea, #764ba2);
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+        }
+
+        .handwriting-image {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            border: 2px solid #e9ecef;
+            margin-bottom: 15px;
+            display: block;
         }
 
         @keyframes sparkle {
@@ -355,49 +433,71 @@ $recommendations = getRecommendationPosts();
 
     <div class="container">
         <div class="header">
-            <a href="index.php" class="nav-link">← 掲示板に戻る</a>
-            <h1>みんなのおすすめ</h1>
-            <p>コミュニティが選んだ素敵な情報をお届け</p>
+            <a href="index.php" class="nav-link">← ノートに戻る</a>
+            <h1>みんなのおすすめ＆おえかき</h1>
+            <p>みんなが教えてくれた素敵なものたち♪</p>
         </div>
 
         <div class="stats-bar">
-            <h3>おすすめ総数</h3>
+            <h3>今までの投稿数</h3>
             <div class="stats-count"><?php echo count($recommendations); ?></div>
         </div>
 
         <?php if (empty($recommendations)): ?>
             <div class="empty-recommendations">
-                <h2>🌟 まだおすすめがありません</h2>
-                <p>みんながおすすめを投稿してくれるのを待っています！<br>
-                掲示板でおすすめを共有してみませんか？</p>
+                <h2>🌟 まだ誰も投稿してないよ〜</h2>
+                <p>最初の投稿、してみない？<br>
+                交流ノートで気軽に何か書いてみてね！</p>
             </div>
         <?php else: ?>
             <div class="recommendations-grid" id="recommendationsGrid">
-                <?php foreach ($recommendations as $rec): ?>
+                <?php foreach ($recommendations as $post): ?>
                     <div class="recommendation-card">
-                        <div class="recommendation-title">
-                            <?php echo htmlspecialchars($rec['recommendation']); ?>
-                        </div>
-                        
-                        <?php if (!empty($rec['comment'])): ?>
-                            <div class="recommendation-comment">
-                                "<?php echo htmlspecialchars(mb_substr($rec['comment'], 0, 150, 'UTF-8')); 
-                                if (mb_strlen($rec['comment'], 'UTF-8') > 150) echo '...'; ?>"
-                            </div>
-                        <?php endif; ?>
-                        
                         <div class="recommendation-meta">
-                            <span class="recommendation-author">
-                                by <?php echo htmlspecialchars($rec['name']); ?>
-                            </span>
-                            <span class="recommendation-date">
-                                <?php echo date('m/d H:i', strtotime($rec['created_at'])); ?>
-                            </span>
+                            <div class="recommendation-author"><?php echo htmlspecialchars($post['name']); ?></div>
+                            <div class="recommendation-date"><?php echo date('Y/m/d H:i', strtotime($post['created_at'])); ?></div>
                         </div>
+                        
+                        <?php if (!empty($post['image_filename'])): ?>
+                            <?php 
+                            $image_path = __DIR__ . '/images/' . $post['image_filename'];
+                            $web_image_path = 'images/' . $post['image_filename'];
+                            ?>
+                            <div class="image-container">
+                                <?php if (file_exists($image_path)): ?>
+                                    <div class="recommendation-title">
+                                        🎨 手書きメッセージ
+                                    </div>
+                                    <img src="<?php echo htmlspecialchars($web_image_path); ?>" 
+                                         alt="手書きコメント" 
+                                         class="handwriting-image"
+                                         onload="console.log('画像読み込み成功: <?php echo htmlspecialchars($post['image_filename']); ?>');"
+                                         onerror="console.log('画像読み込み失敗: <?php echo htmlspecialchars($post['image_filename']); ?>'); this.style.display='none'; this.nextElementSibling.style.display='block';">
+                                    <div class="image-error" style="display: none; color: #e74c3c; font-style: italic; padding: 10px; background: #f8d7da; border-radius: 8px;">
+                                        ❌ 画像の読み込みに失敗しました<br>
+                                        <small>ファイル: <?php echo htmlspecialchars($post['image_filename']); ?></small>
+                                    </div>
+                                <?php else: ?>
+                                    <div class="image-error" style="color: #e74c3c; font-style: italic; padding: 10px; background: #f8d7da; border-radius: 8px;">
+                                        ❌ 画像ファイルが見つかりません<br>
+                                        <small>ファイル: <?php echo htmlspecialchars($post['image_filename']); ?></small><br>
+                                        <small>パス: <?php echo htmlspecialchars($image_path); ?></small>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+                        <?php else: ?>
+                            <?php if (!empty($post['recommendation'])): ?>
+                                <div class="recommendation-title"><?php echo htmlspecialchars($post['recommendation']); ?></div>
+                            <?php endif; ?>
+                            <?php if (!empty($post['comment'])): ?>
+                                <div class="recommendation-comment"><?php echo nl2br(htmlspecialchars($post['comment'])); ?></div>
+                            <?php endif; ?>
+                        <?php endif; ?>
                     </div>
                 <?php endforeach; ?>
             </div>
         <?php endif; ?>
+
     </div>
 
     <script>

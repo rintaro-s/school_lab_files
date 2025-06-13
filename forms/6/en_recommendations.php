@@ -79,8 +79,31 @@ $recommendations = getRecommendationPosts();
             cursor: pointer;
             z-index: 10;
         }
+     
+        .header .language-button{
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            text-decoration: none;
+            padding: 15px 25px;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-block;
+            min-width: 120px;
+            text-align: center;
+            cursor: pointer;
+            z-index: 10;   
+        }
 
         .header .nav-link:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+       
+         .header .language-button:hover {
             transform: translateY(-3px);
             box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
         }
@@ -355,21 +378,22 @@ $recommendations = getRecommendationPosts();
 
     <div class="container">
         <div class="header">
-            <a href="index.php" class="nav-link">← 掲示板に戻る</a>
-            <h1>みんなのおすすめ</h1>
-            <p>コミュニティが選んだ素敵な情報をお届け</p>
+            <a href="en_index.php" class="nav-link">← Return to the bulletin board</a>
+            <a href="https://lorinta-xsrv-jp.translate.goog/wp-content/uploads/PBL/forms/recommendations.php?_x_tr_sl=ja&_x_tr_tl=en" class="language-button">🌍Language</a>
+            <h1>Everyone's recommendations</h1>
+            <p>Delivering wonderful information chosen by the community</p>
         </div>
 
         <div class="stats-bar">
-            <h3>おすすめ総数</h3>
+            <h3>Total recommendations</h3>
             <div class="stats-count"><?php echo count($recommendations); ?></div>
         </div>
 
         <?php if (empty($recommendations)): ?>
             <div class="empty-recommendations">
-                <h2>🌟 まだおすすめがありません</h2>
-                <p>みんながおすすめを投稿してくれるのを待っています！<br>
-                掲示板でおすすめを共有してみませんか？</p>
+                <h2>🌟 There are no recommendations yet</h2>
+                <p>We are waiting for everyone to post their recommendations!<br>
+                How about sharing recommendations on the bulletin board?</p>
             </div>
         <?php else: ?>
             <div class="recommendations-grid" id="recommendationsGrid">

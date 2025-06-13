@@ -355,21 +355,21 @@ $recommendations = getRecommendationPosts();
 
     <div class="container">
         <div class="header">
-            <a href="index.php" class="nav-link">← 掲示板に戻る</a>
-            <h1>みんなのおすすめ</h1>
-            <p>コミュニティが選んだ素敵な情報をお届け</p>
+            <a href="ko_index.php" class="nav-link">← 게시판으로 돌아가기</a>
+            <h1>모두의 추천</h1>
+            <p>커뮤니티가 선택한 멋진 정보를 전달합니다</p>
         </div>
 
         <div class="stats-bar">
-            <h3>おすすめ総数</h3>
+            <h3>추천 총 수</h3>
             <div class="stats-count"><?php echo count($recommendations); ?></div>
         </div>
 
         <?php if (empty($recommendations)): ?>
             <div class="empty-recommendations">
-                <h2>🌟 まだおすすめがありません</h2>
-                <p>みんながおすすめを投稿してくれるのを待っています！<br>
-                掲示板でおすすめを共有してみませんか？</p>
+                <h2>🌟아직 추천할 것이 없습니다</h2>
+                <p>모두가 추천을 게시해 주기를 기다리고 있어요!<br>
+                게시판에서 추천을 공유해 보지 않겠습니까?</p>
             </div>
         <?php else: ?>
             <div class="recommendations-grid" id="recommendationsGrid">
