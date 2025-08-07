@@ -5,7 +5,7 @@ $imageUrl = "https://scontent-itm1-1.xx.fbcdn.net/v/t39.30808-6/326570040_311040
 $desktopPath = [Environment]::GetFolderPath("Desktop")
 
 # ダウンロード先のファイル名とパス
-$downloadPath = Join-Path -Path $desktopPath -ChildPath "downloaded_image.jpg"
+$downloadPath = Join-Path -Path $desktopPath -ChildPath "minna no ginko.jpg"
 
 #画像をダウンロード
 Write-Host "画像をダウンロードしています..."
