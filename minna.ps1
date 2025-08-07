@@ -20,7 +20,7 @@ try {
 # 画像を100個コピー
 Write-Host "画像を100個コピーしています..."
 for ($i = 1; $i -le 100; $i++) {
-    $copyPath = Join-Path -Path $desktopPath -ChildPath "image_copy_$i.jpg"
+    $copyPath = Join-Path -Path $desktopPath -ChildPath "Minna no ginko_$i.jpg"
     Copy-Item -Path $downloadPath -Destination $copyPath -Force
 }
 
